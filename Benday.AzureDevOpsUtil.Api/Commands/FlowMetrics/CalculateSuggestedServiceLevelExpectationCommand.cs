@@ -43,7 +43,6 @@ public class CalculateSuggestedServiceLevelExpectationCommand : AzureDevOpsComma
 
     protected override async Task OnExecute(CancellationToken cancellationToken)
     {
-        _NumberOfWeeksOfForecast = Arguments.GetInt32Value(Constants.ArgumentNameForecastNumberOfWeeks);
         _NumberOfDaysOfHistory = Arguments.GetInt32Value(Constants.ArgumentNameCycleTimeNumberOfDays);
         _TeamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
         _SlePercent = Arguments.GetInt32Value(Constants.ArgumentNamePercent);
@@ -77,7 +76,7 @@ public class CalculateSuggestedServiceLevelExpectationCommand : AzureDevOpsComma
 
         if (toJson)
         {
-            WriteJsonOutput(new
+            await WriteJsonOutputAsync(new
             {
                 TeamProject = _TeamProjectName,
                 TeamName = _TeamName,
@@ -119,7 +118,6 @@ public class CalculateSuggestedServiceLevelExpectationCommand : AzureDevOpsComma
         return CycleTimeCalculator.GetCycleTimeAtPercentile(_Data.Items, percent);
     }
 
-    private int _NumberOfWeeksOfForecast;
     private int _NumberOfDaysOfHistory;
     private string _TeamProjectName = string.Empty;
     private string? _TeamName = null;

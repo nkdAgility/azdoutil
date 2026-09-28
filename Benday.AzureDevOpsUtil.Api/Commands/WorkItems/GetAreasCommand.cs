@@ -40,7 +40,7 @@ public class GetAreasCommand : GetClassificationNodesCommandBase
 
         if (toJson)
         {
-            WriteJsonOutput(LastResult);
+            await WriteJsonOutputAsync(LastResult);
         }
     }
 }

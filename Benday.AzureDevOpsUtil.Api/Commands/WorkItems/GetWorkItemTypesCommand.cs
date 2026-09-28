@@ -45,7 +45,7 @@ public class GetWorkItemTypesCommand : AzureDevOpsCommandBase
 
         if (toJson)
         {
-            WriteJsonOutput(AllWorkItemTypes?.Types ?? Array.Empty<WorkItemTypeDefinitionResponse>());
+            await WriteJsonOutputAsync(AllWorkItemTypes?.Types ?? Array.Empty<WorkItemTypeDefinitionResponse>());
             return;
         }
         else if (IsQuietMode == false && AllWorkItemTypes != null)

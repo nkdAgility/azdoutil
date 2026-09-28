@@ -46,7 +46,7 @@ public class ListTeamsForProjectCommand : AzureDevOpsCommandBase
 
         if (toJson)
         {
-            WriteJsonOutput(result ?? Array.Empty<TeamInfo>());
+            await WriteJsonOutputAsync(result ?? Array.Empty<TeamInfo>());
             return;
         }
         else if (IsQuietMode)

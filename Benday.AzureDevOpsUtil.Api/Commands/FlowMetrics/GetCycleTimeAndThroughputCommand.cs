@@ -66,7 +66,7 @@ public class GetCycleTimeAndThroughputCommand : AzureDevOpsCommandBase
 
         if (toJson)
         {
-            WriteJsonOutput(ToThroughputResult(now));
+            await WriteJsonOutputAsync(ToThroughputResult(now));
         }
         else if (IsQuietMode == false)
         {

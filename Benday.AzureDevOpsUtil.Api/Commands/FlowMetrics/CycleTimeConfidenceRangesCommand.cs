@@ -41,7 +41,6 @@ public class CycleTimeConfidenceRangesCommand : AzureDevOpsCommandBase
 
     protected override async Task OnExecute(CancellationToken cancellationToken)
     {
-        _NumberOfWeeksOfForecast = Arguments.GetInt32Value(Constants.ArgumentNameForecastNumberOfWeeks);
         _NumberOfDaysOfHistory = Arguments.GetInt32Value(Constants.ArgumentNameCycleTimeNumberOfDays);
         _TeamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
         _TeamName = Arguments.HasValue(Constants.ArgumentNameTeamName)
@@ -64,7 +63,7 @@ public class CycleTimeConfidenceRangesCommand : AzureDevOpsCommandBase
 
         if (toJson)
         {
-            WriteJsonOutput(new
+            await WriteJsonOutputAsync(new
             {
                 TeamProject = _TeamProjectName,
                 TeamName = _TeamName,
@@ -88,7 +87,6 @@ public class CycleTimeConfidenceRangesCommand : AzureDevOpsCommandBase
     }
 
 
-    private int _NumberOfWeeksOfForecast;
     private int _NumberOfDaysOfHistory;
     private string _TeamProjectName = string.Empty;
     private string? _TeamName = null;

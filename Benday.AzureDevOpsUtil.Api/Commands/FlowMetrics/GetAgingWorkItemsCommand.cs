@@ -55,7 +55,7 @@ public class GetAgingWorkItemsCommand : AzureDevOpsCommandBase
 
         if (toJson)
         {
-            WriteJsonOutput(ToAgingWorkResult());
+            await WriteJsonOutputAsync(ToAgingWorkResult());
         }
         else if (IsQuietMode == false)
         {

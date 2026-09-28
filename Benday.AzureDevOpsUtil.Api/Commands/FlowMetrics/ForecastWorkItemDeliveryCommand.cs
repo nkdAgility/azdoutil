@@ -154,7 +154,7 @@ public class ForecastWorkItemDeliveryCommand : AzureDevOpsCommandBase
                 weeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 99, Value = command.WeeksAt99Percent.Value });
             }
 
-            WriteJsonOutput(new
+            await WriteJsonOutputAsync(new
             {
                 WorkItemId = workItem.Id,
                 WorkItemTitle = workItem.FieldsAsStrings["System.Title"],

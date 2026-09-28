@@ -69,7 +69,7 @@ public class ForecastDurationForItemCountCommand : AzureDevOpsCommandBase
         PopulateForecastPoints();
         if (toJson)
         {
-            WriteJsonOutput(ToDurationForecastResult());
+            await WriteJsonOutputAsync(ToDurationForecastResult());
         }
         else if (IsQuietMode == false)
         {

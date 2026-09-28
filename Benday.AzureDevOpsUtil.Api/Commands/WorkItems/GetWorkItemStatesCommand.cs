@@ -51,7 +51,7 @@ public class GetWorkItemStatesCommand : AzureDevOpsCommandBase
 
         if (toJson)
         {
-            WriteJsonOutput(result?.States ?? Array.Empty<WorkItemTypeStateInfo>());
+            await WriteJsonOutputAsync(result?.States ?? Array.Empty<WorkItemTypeStateInfo>());
             return;
         }
         else if (IsQuietMode == false)

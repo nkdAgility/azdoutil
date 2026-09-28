@@ -68,7 +68,7 @@ public class ForecastItemCountInWeeksCommand : AzureDevOpsCommandBase
         CreateForecast();
         if (toJson)
         {
-            WriteJsonOutput(ToItemsForecastResult());
+            await WriteJsonOutputAsync(ToItemsForecastResult());
         }
         else
         {

@@ -42,7 +42,7 @@ public class GetIterationsCommand : GetClassificationNodesCommandBase
 
         if (toJson)
         {
-            WriteJsonOutput(LastResult);
+            await WriteJsonOutputAsync(LastResult);
         }
     }
 }

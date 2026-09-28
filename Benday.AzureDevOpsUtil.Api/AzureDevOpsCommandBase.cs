@@ -81,7 +81,7 @@ public abstract class AzureDevOpsCommandBase : Command
         }
     }
 
-    protected void WriteJsonOutput<T>(T value)
+    protected async Task WriteJsonOutputAsync<T>(T value)
     {
         var json = JsonSerializer.Serialize(value, new JsonSerializerOptions
         {
@@ -96,7 +96,13 @@ public abstract class AzureDevOpsCommandBase : Command
         }
         else
         {
-            File.WriteAllText(outputPath, json);
+            var outputDirectory = Path.GetDirectoryName(outputPath);
+            if (string.IsNullOrWhiteSpace(outputDirectory) == false)
+            {
+                Directory.CreateDirectory(outputDirectory);
+            }
+
+            await File.WriteAllTextAsync(outputPath, json);
         }
     }
 
