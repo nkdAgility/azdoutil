@@ -19,6 +19,7 @@ public class ForecastItemCountInWeeksCommand : AzureDevOpsCommandBase
         var arguments = new ArgumentCollection();
 
         AddCommonArguments(arguments);
+        AddJsonOutputArguments(arguments);
         arguments.AddInt32(Constants.ArgumentNameCycleTimeNumberOfDays)
             .AsRequired()
             .WithDescription("Number of days of history to compute");
@@ -41,6 +42,11 @@ public class ForecastItemCountInWeeksCommand : AzureDevOpsCommandBase
         _NumberOfWeeksOfForecast = Arguments.GetInt32Value(Constants.ArgumentNameForecastNumberOfWeeks);
         _NumberOfDaysOfHistory = Arguments.GetInt32Value(Constants.ArgumentNameCycleTimeNumberOfDays);
         _TeamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
+        _TeamName = Arguments.HasValue(Constants.ArgumentNameTeamName)
+            ? Arguments.GetStringValue(Constants.ArgumentNameTeamName)
+            : null;
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         var getDataCommand = await ExecuteAzdoCommandAsync<GetCycleTimeAndThroughputCommand>(args =>
         {
@@ -60,7 +66,14 @@ public class ForecastItemCountInWeeksCommand : AzureDevOpsCommandBase
         DataGroupedByWeek = getDataCommand.GroupedByWeek;
 
         CreateForecast();
-        DisplayForecast();
+        if (toJson)
+        {
+            WriteJsonOutput(ToItemsForecastResult());
+        }
+        else
+        {
+            DisplayForecast();
+        }
     }
 
     private void DisplayForecast()
@@ -108,7 +121,53 @@ public class ForecastItemCountInWeeksCommand : AzureDevOpsCommandBase
     private int _NumberOfWeeksOfForecast;
     private int _NumberOfDaysOfHistory;
     private string _TeamProjectName = string.Empty;
+    private string? _TeamName = null;
 
     public Dictionary<DateTime, ThroughputIteration> DataGroupedByWeek { get; private set; } = new();
     private ItemsInWeeksDistribution? _distribution;
+
+    private ItemsForecastResult ToItemsForecastResult()
+    {
+        if (_distribution == null)
+        {
+            throw new InvalidOperationException("Forecast distribution was not generated.");
+        }
+
+        var result = new ItemsForecastResult
+        {
+            TeamProject = _TeamProjectName,
+            TeamName = _TeamName,
+            WeekCount = _NumberOfWeeksOfForecast,
+            DayRange = _NumberOfDaysOfHistory,
+            NumberOfWeeksOfHistory = DataGroupedByWeek.Count,
+            SimulationCount = _distribution.SimulationCount
+        };
+
+        result.ItemsByConfidence.Add(new ForecastConfidencePoint
+        {
+            ConfidencePercent = 50,
+            Value = _distribution.GetItemsAtSimulationThreshold(Constants.ForecastNumberOfSimulationsFiftyPercent)
+        });
+        result.ItemsByConfidence.Add(new ForecastConfidencePoint
+        {
+            ConfidencePercent = 80,
+            Value = _distribution.GetItemsAtSimulationThreshold(Constants.ForecastNumberOfSimulationsEightyPercent)
+        });
+        result.ItemsByConfidence.Add(new ForecastConfidencePoint
+        {
+            ConfidencePercent = 90,
+            Value = _distribution.GetItemsAtSimulationThreshold(Constants.ForecastNumberOfSimulationsNinetyPercent)
+        });
+        result.ItemsByConfidence.Add(new ForecastConfidencePoint
+        {
+            ConfidencePercent = 99,
+            Value = _distribution.GetItemsAtSimulationThreshold(Constants.ForecastNumberOfSimulationsHundredPercent)
+        });
+
+        result.Summary =
+            $"Over {_NumberOfWeeksOfForecast} week(s) the team is 80% likely to complete at least " +
+            $"{result.ItemsByConfidence.First(x => x.ConfidencePercent == 80).Value} item(s).";
+
+        return result;
+    }
 }

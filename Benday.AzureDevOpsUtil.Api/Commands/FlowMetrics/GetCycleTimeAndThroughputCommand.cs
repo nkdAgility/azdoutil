@@ -23,6 +23,7 @@ public class GetCycleTimeAndThroughputCommand : AzureDevOpsCommandBase
         var arguments = new ArgumentCollection();
 
         AddCommonArguments(arguments);
+        AddJsonOutputArguments(arguments);
         arguments.AddInt32(Constants.ArgumentNameCycleTimeNumberOfDays)
             .AsRequired()
             .WithDescription("Number of days of history to compute");
@@ -41,6 +42,8 @@ public class GetCycleTimeAndThroughputCommand : AzureDevOpsCommandBase
     {
         _NumberOfDaysOfHistory = Arguments.GetInt32Value(Constants.ArgumentNameCycleTimeNumberOfDays);
         _TeamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         _HasTeamNameQuery= Arguments.HasValue(Constants.ArgumentNameTeamName);
 
@@ -61,7 +64,11 @@ public class GetCycleTimeAndThroughputCommand : AzureDevOpsCommandBase
             GroupedByWeek = ThroughputWeekGrouper.GroupByWeek(Data.Items);
         }
 
-        if (IsQuietMode == false)
+        if (toJson)
+        {
+            WriteJsonOutput(ToThroughputResult(now));
+        }
+        else if (IsQuietMode == false)
         {
             WriteLine($"Number of days: {(now - _StartOfRange).TotalDays}");
 
@@ -176,4 +183,47 @@ public class GetCycleTimeAndThroughputCommand : AzureDevOpsCommandBase
 
     public CycleTimeDataResponse? Data { get; private set; }
     public Dictionary<DateTime, ThroughputIteration> GroupedByWeek { get; private set; } = new();
+
+    private ThroughputResult ToThroughputResult(DateTime now)
+    {
+        var result = new ThroughputResult
+        {
+            TeamProject = _TeamProjectName,
+            TeamName = _HasTeamNameQuery ? _TeamName : null,
+            StartDate = _StartOfRange.ToString("yyyy-MM-dd"),
+            EndDate = now.ToString("yyyy-MM-dd")
+        };
+
+        if (Data == null || Data.Items == null || Data.Items.Length == 0)
+        {
+            result.Summary =
+                $"No completed work items found for project '{_TeamProjectName}' between " +
+                $"{result.StartDate} and {result.EndDate}.";
+            return result;
+        }
+
+        result.TotalItemsCompleted = Data.Items.Length;
+        result.NumberOfWeeks = GroupedByWeek.Count;
+        result.AverageItemsPerWeek = GroupedByWeek.Count == 0
+            ? 0
+            : Math.Round((double)Data.Items.Length / GroupedByWeek.Count, 2);
+        result.AverageCycleTimeDays = Math.Round(Data.Items.Average(x => x.CycleTimeDays), 2);
+
+        foreach (var week in GroupedByWeek.Values.OrderBy(x => x.StartOfWeek))
+        {
+            result.WeeklyBreakdown.Add(new WeeklyThroughput
+            {
+                WeekStarting = week.StartOfWeek,
+                ItemsCompleted = week.Items.Count,
+                AverageCycleTimeDays = Math.Round(week.AverageCycleTime, 2)
+            });
+        }
+
+        result.Summary =
+            $"The team completed {result.TotalItemsCompleted} item(s) across " +
+            $"{result.NumberOfWeeks} week(s) ({result.AverageItemsPerWeek} item(s) per week on average), " +
+            $"with an average cycle time of {result.AverageCycleTimeDays} day(s).";
+
+        return result;
+    }
 }

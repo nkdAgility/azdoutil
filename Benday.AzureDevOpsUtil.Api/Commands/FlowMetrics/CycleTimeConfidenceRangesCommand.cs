@@ -22,6 +22,7 @@ public class CycleTimeConfidenceRangesCommand : AzureDevOpsCommandBase
         var arguments = new ArgumentCollection();
 
         AddCommonArguments(arguments);
+        AddJsonOutputArguments(arguments);
 
         arguments.AddInt32(Constants.ArgumentNameCycleTimeNumberOfDays)
             .AsRequired()
@@ -43,6 +44,11 @@ public class CycleTimeConfidenceRangesCommand : AzureDevOpsCommandBase
         _NumberOfWeeksOfForecast = Arguments.GetInt32Value(Constants.ArgumentNameForecastNumberOfWeeks);
         _NumberOfDaysOfHistory = Arguments.GetInt32Value(Constants.ArgumentNameCycleTimeNumberOfDays);
         _TeamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
+        _TeamName = Arguments.HasValue(Constants.ArgumentNameTeamName)
+            ? Arguments.GetStringValue(Constants.ArgumentNameTeamName)
+            : null;
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         var command = await ExecuteAzdoCommandAsync<CalculateSuggestedServiceLevelExpectationCommand>(args =>
         {
@@ -56,7 +62,19 @@ public class CycleTimeConfidenceRangesCommand : AzureDevOpsCommandBase
         var cycleTimeAt85Percent = command.CycleTimeAtPercent;
         var cycleTimeAt50Percent = command.GetCycleTimeAtPercent(50);
 
-        if (IsQuietMode == false)
+        if (toJson)
+        {
+            WriteJsonOutput(new
+            {
+                TeamProject = _TeamProjectName,
+                TeamName = _TeamName,
+                DayRange = _NumberOfDaysOfHistory,
+                ItemCount = command.DataItemCount,
+                CycleTimeDaysAt50Percent = cycleTimeAt50Percent,
+                CycleTimeDaysAt85Percent = cycleTimeAt85Percent
+            });
+        }
+        else if (IsQuietMode == false)
         {
             if (command.DataItemCount < 10 && IsQuietMode == false)
             {
@@ -72,5 +90,6 @@ public class CycleTimeConfidenceRangesCommand : AzureDevOpsCommandBase
 
     private int _NumberOfWeeksOfForecast;
     private int _NumberOfDaysOfHistory;
-    private string _TeamProjectName = string.Empty;        
+    private string _TeamProjectName = string.Empty;
+    private string? _TeamName = null;
 }

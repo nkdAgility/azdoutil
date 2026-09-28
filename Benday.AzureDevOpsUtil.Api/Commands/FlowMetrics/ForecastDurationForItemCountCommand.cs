@@ -19,6 +19,7 @@ public class ForecastDurationForItemCountCommand : AzureDevOpsCommandBase
         var arguments = new ArgumentCollection();
 
         AddCommonArguments(arguments);
+        AddJsonOutputArguments(arguments);
         arguments.AddInt32(Constants.ArgumentNameCycleTimeNumberOfDays)
             .AsRequired()
             .WithDescription("Number of days of history to compute");
@@ -41,6 +42,11 @@ public class ForecastDurationForItemCountCommand : AzureDevOpsCommandBase
         _NumberOfItemsToForecast = Arguments.GetInt32Value(Constants.ArgumentNameForecastNumberOfItems);
         _NumberOfDaysOfHistory = Arguments.GetInt32Value(Constants.ArgumentNameCycleTimeNumberOfDays);
         _TeamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
+        _TeamName = Arguments.HasValue(Constants.ArgumentNameTeamName)
+            ? Arguments.GetStringValue(Constants.ArgumentNameTeamName)
+            : null;
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         var getDataCommand = await ExecuteAzdoCommandAsync<GetCycleTimeAndThroughputCommand>(args =>
         {
@@ -60,7 +66,12 @@ public class ForecastDurationForItemCountCommand : AzureDevOpsCommandBase
         DataGroupedByWeek = getDataCommand.GroupedByWeek;
 
         CreateForecast();
-        if (IsQuietMode == false)
+        PopulateForecastPoints();
+        if (toJson)
+        {
+            WriteJsonOutput(ToDurationForecastResult());
+        }
+        else if (IsQuietMode == false)
         {
             DisplayForecast(getDataCommand);
         }
@@ -125,6 +136,11 @@ public class ForecastDurationForItemCountCommand : AzureDevOpsCommandBase
         var throughput100PercentChance = _distribution.GetWeeksAtSimulationThreshold(
             Constants.ForecastNumberOfSimulationsHundredPercent);
 
+        WeeksAt50Percent = throughput50PercentChance;
+        WeeksAt80Percent = throughput80PercentChance;
+        WeeksAt90Percent = throughput90PercentChance;
+        WeeksAt99Percent = throughput100PercentChance;
+
         WriteLine($"50% sure it can be done in {throughput50PercentChance} week(s)");
         WriteLine($"80% sure it can be done in {throughput80PercentChance} week(s)");
         WriteLine($"90% sure it can be done in {throughput90PercentChance} week(s)");
@@ -145,7 +161,54 @@ public class ForecastDurationForItemCountCommand : AzureDevOpsCommandBase
     private int _NumberOfItemsToForecast;
     private int _NumberOfDaysOfHistory;
     private string _TeamProjectName = string.Empty;
+    private string? _TeamName = null;
 
     public Dictionary<DateTime, ThroughputIteration> DataGroupedByWeek { get; private set; } = new();
     private WeeksForItemCountDistribution? _distribution;
+    public int? WeeksAt50Percent { get; private set; }
+    public int? WeeksAt80Percent { get; private set; }
+    public int? WeeksAt90Percent { get; private set; }
+    public int? WeeksAt99Percent { get; private set; }
+
+    private DurationForecastResult ToDurationForecastResult()
+    {
+        if (_distribution == null || WeeksAt50Percent.HasValue == false || WeeksAt80Percent.HasValue == false ||
+            WeeksAt90Percent.HasValue == false || WeeksAt99Percent.HasValue == false)
+        {
+            throw new InvalidOperationException("Forecast distribution was not generated.");
+        }
+
+        var result = new DurationForecastResult
+        {
+            TeamProject = _TeamProjectName,
+            TeamName = _TeamName,
+            ItemCount = _NumberOfItemsToForecast,
+            DayRange = _NumberOfDaysOfHistory,
+            NumberOfWeeksOfHistory = DataGroupedByWeek.Count,
+            SimulationCount = _distribution.SimulationCount
+        };
+
+        result.WeeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 50, Value = WeeksAt50Percent.Value });
+        result.WeeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 80, Value = WeeksAt80Percent.Value });
+        result.WeeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 90, Value = WeeksAt90Percent.Value });
+        result.WeeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 99, Value = WeeksAt99Percent.Value });
+
+        result.Summary =
+            $"Completing {_NumberOfItemsToForecast} item(s) is 80% likely to take {WeeksAt80Percent.Value} week(s) or less.";
+
+        return result;
+    }
+
+    private void PopulateForecastPoints()
+    {
+        if (_distribution == null)
+        {
+            throw new InvalidOperationException("Forecast distribution was not generated.");
+        }
+
+        WeeksAt50Percent = _distribution.GetWeeksAtSimulationThreshold(Constants.ForecastNumberOfSimulationsFiftyPercent);
+        WeeksAt80Percent = _distribution.GetWeeksAtSimulationThreshold(Constants.ForecastNumberOfSimulationsEightyPercent);
+        WeeksAt90Percent = _distribution.GetWeeksAtSimulationThreshold(Constants.ForecastNumberOfSimulationsNinetyPercent);
+        WeeksAt99Percent = _distribution.GetWeeksAtSimulationThreshold(Constants.ForecastNumberOfSimulationsHundredPercent);
+    }
 }

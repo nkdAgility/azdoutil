@@ -21,6 +21,7 @@ public class GetIterationsCommand : GetClassificationNodesCommandBase
 
 
         AddCommonArguments(args);
+        AddJsonOutputArguments(args);
         args.AddString(Constants.ArgumentNameTeamProjectName).AsRequired().
             WithDescription("Team project name that contains the iterations");
         args.AddBoolean(Constants.ArgumentNameVerbose).AsNotRequired().AllowEmptyValue().
@@ -33,8 +34,15 @@ public class GetIterationsCommand : GetClassificationNodesCommandBase
     {
         var verbose = Arguments.GetBooleanValue(Constants.ArgumentNameVerbose);
         var teamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
+        var toJson = IsJsonOutputRequested();
 
-        await GetNodes(teamProjectName, "iteration", verbose);
+        ValidateJsonOutputArguments();
+
+        await GetNodes(teamProjectName, "iteration", verbose, toJson == false);
+
+        if (toJson)
+        {
+            WriteJsonOutput(LastResult);
+        }
     }
 }
-

@@ -3,6 +3,7 @@ using System.Web;
 
 using Benday.AzureDevOpsUtil.Api.Commands.ProjectAdministration;
 using Benday.AzureDevOpsUtil.Api.Commands.WorkItems;
+using Benday.AzureDevOpsUtil.Api.FlowMetrics;
 using Benday.AzureDevOpsUtil.Api.Messages;
 using Benday.CommandsFramework;
 
@@ -24,6 +25,7 @@ public class ForecastWorkItemDeliveryCommand : AzureDevOpsCommandBase
         var arguments = new ArgumentCollection();
 
         AddCommonArguments(arguments);
+        AddJsonOutputArguments(arguments);
         arguments.AddInt32(Constants.ArgumentNameCycleTimeNumberOfDays)
             .AsRequired()
             .WithDescription("Number of days of history to compute");
@@ -77,6 +79,8 @@ public class ForecastWorkItemDeliveryCommand : AzureDevOpsCommandBase
     protected override async Task OnExecute(CancellationToken cancellationToken)
     {
         var workItemId = Arguments.GetInt32Value(Constants.CommandArg_WorkItemId);
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         var workItem = await GetWorkItem(workItemId);
 
@@ -109,11 +113,11 @@ public class ForecastWorkItemDeliveryCommand : AzureDevOpsCommandBase
         int workItemBacklogPosition = await GetWorkItemBacklogPosition(
             workItem, teamProject);
 
-        await GetForecast(teamProject, workItem, workItemBacklogPosition);
+        await GetForecast(teamProject, workItem, workItemBacklogPosition, toJson);
     }
 
     private async Task GetForecast(TeamProjectInfo teamProject,
-        GetWorkItemByIdResponse workItem, int position)
+        GetWorkItemByIdResponse workItem, int position, bool toJson)
     {
         var command = await ExecuteAzdoCommandAsync<ForecastDurationForItemCountCommand>(args =>
         {
@@ -128,6 +132,37 @@ public class ForecastWorkItemDeliveryCommand : AzureDevOpsCommandBase
         if (command.DataGroupedByWeek == null)
         {
             throw new KnownException($"Could not get forecast.");
+        }
+        else if (toJson)
+        {
+            var weeksByConfidence = new List<ForecastConfidencePoint>();
+
+            if (command.WeeksAt50Percent.HasValue)
+            {
+                weeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 50, Value = command.WeeksAt50Percent.Value });
+            }
+            if (command.WeeksAt80Percent.HasValue)
+            {
+                weeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 80, Value = command.WeeksAt80Percent.Value });
+            }
+            if (command.WeeksAt90Percent.HasValue)
+            {
+                weeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 90, Value = command.WeeksAt90Percent.Value });
+            }
+            if (command.WeeksAt99Percent.HasValue)
+            {
+                weeksByConfidence.Add(new ForecastConfidencePoint { ConfidencePercent = 99, Value = command.WeeksAt99Percent.Value });
+            }
+
+            WriteJsonOutput(new
+            {
+                WorkItemId = workItem.Id,
+                WorkItemTitle = workItem.FieldsAsStrings["System.Title"],
+                TeamProject = teamProject.Name,
+                TeamName = _HasTeamNameQuery ? _TeamName : null,
+                BacklogPosition = position,
+                WeeksByConfidence = weeksByConfidence
+            });
         }
         else
         {

@@ -20,6 +20,7 @@ public class CalculateSuggestedServiceLevelExpectationCommand : AzureDevOpsComma
         var arguments = new ArgumentCollection();
 
         AddCommonArguments(arguments);
+        AddJsonOutputArguments(arguments);
 
         arguments.AddInt32(Constants.ArgumentNameCycleTimeNumberOfDays)
             .AsRequired()
@@ -46,6 +47,11 @@ public class CalculateSuggestedServiceLevelExpectationCommand : AzureDevOpsComma
         _NumberOfDaysOfHistory = Arguments.GetInt32Value(Constants.ArgumentNameCycleTimeNumberOfDays);
         _TeamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
         _SlePercent = Arguments.GetInt32Value(Constants.ArgumentNamePercent);
+        _TeamName = Arguments.HasValue(Constants.ArgumentNameTeamName)
+            ? Arguments.GetStringValue(Constants.ArgumentNameTeamName)
+            : null;
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         var getDataCommand = await ExecuteAzdoCommandAsync<GetCycleTimeAndThroughputCommand>(args =>
         {
@@ -69,7 +75,19 @@ public class CalculateSuggestedServiceLevelExpectationCommand : AzureDevOpsComma
 
         CycleTimeAtPercent = suggestedSleCycleTime;
 
-        if (IsQuietMode == false)
+        if (toJson)
+        {
+            WriteJsonOutput(new
+            {
+                TeamProject = _TeamProjectName,
+                TeamName = _TeamName,
+                DayRange = _NumberOfDaysOfHistory,
+                Percent = _SlePercent,
+                CycleTimeDaysAtPercent = suggestedSleCycleTime,
+                DataItemCount
+            });
+        }
+        else if (IsQuietMode == false)
         {
             WriteLine($"{_SlePercent}% of items are completed in {suggestedSleCycleTime} days or less.");
         }
@@ -104,6 +122,7 @@ public class CalculateSuggestedServiceLevelExpectationCommand : AzureDevOpsComma
     private int _NumberOfWeeksOfForecast;
     private int _NumberOfDaysOfHistory;
     private string _TeamProjectName = string.Empty;
+    private string? _TeamName = null;
     private int _SlePercent;
     private CycleTimeDataResponse? _Data;    
 }

@@ -12,6 +12,11 @@ public abstract class GetClassificationNodesCommandBase : AzureDevOpsCommandBase
 
     protected async Task GetNodes(string teamProjectName, string filterStructureType, bool verbose)
     {
+        await GetNodes(teamProjectName, filterStructureType, verbose, true);
+    }
+
+    protected async Task GetNodes(string teamProjectName, string filterStructureType, bool verbose, bool writeTextOutput)
+    {
         
         string requestUrl;
 
@@ -30,7 +35,13 @@ public abstract class GetClassificationNodesCommandBase : AzureDevOpsCommandBase
 
         var result = await CallEndpointViaGetAndGetResult<ClassificationNode>(requestUrl, false);
 
-        if (result != null && IsQuietMode == false)
+        LastResult = result;
+
+        if (writeTextOutput == false)
+        {
+            return;
+        }
+        else if (result != null && IsQuietMode == false)
         {
 
             WriteClassificationNode(result, verbose);
@@ -40,6 +51,8 @@ public abstract class GetClassificationNodesCommandBase : AzureDevOpsCommandBase
             WriteLine($"No {filterStructureType}s found.");
         }
     }
+
+    public ClassificationNode? LastResult { get; private set; }
 
     private void WriteClassificationNode(ClassificationNode item, bool verbose)
     {
@@ -96,4 +109,3 @@ public abstract class GetClassificationNodesCommandBase : AzureDevOpsCommandBase
         }
     }
 }
-

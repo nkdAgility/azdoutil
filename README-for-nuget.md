@@ -444,6 +444,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name |
 | teamname | Optional | String | Team name |
 ## cycletimeconfidence
@@ -453,6 +455,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | teamname | Optional | String | Team name |
@@ -463,6 +467,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | forecastitemcount | Required | Int32 | Number of items to forecast duration for |
@@ -474,6 +480,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | forecastweeks | Required | Int32 | Number of weeks into the future to forecast |
@@ -485,6 +493,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | id | Required | Int32 | Id of the work item to forecast |
 | teamname | Optional | String | Team name |
@@ -495,6 +505,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | teamname | Optional | String | Team name |
@@ -506,6 +518,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | teamname | Optional | String | Team name |
@@ -627,6 +641,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the teams |
 # Test Data
 ## createfromexcel
@@ -805,6 +821,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the iterations |
 | verbose | Optional | Boolean | Verbose output |
 ## getfields
@@ -824,6 +842,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the iterations |
 | verbose | Optional | Boolean | Verbose output |
 ## getworkitem
@@ -841,6 +861,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the work item type |
 | workitemtypename | Required | String | Name of the work item type |
 ## getworkitemtypes
@@ -850,6 +872,8 @@ The tools are all read-only:
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the work item types |
 | nameonly | Optional | Boolean | Only show the name of the work item types in the results. |
 ## listworkitemqueries

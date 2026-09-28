@@ -168,6 +168,7 @@ public static class Constants
     public const string CommandArg_StateTransitionDate = "date";
     public const string ArgumentNameWorkItemTypeName = "workitemtypename";
     public const string ArgumentNameFilter = "filter";
+    public const string ArgumentNameOutput = "output";
     public const string CommandArgumentNameOverride = "override";
 
     public const string CommandName_AnalyzeRepo = "analyzerepo";

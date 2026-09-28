@@ -519,6 +519,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name |
 | teamname | Optional | String | Team name |
 ## <a name="cycletimeconfidence"></a> cycletimeconfidence
@@ -528,6 +530,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | teamname | Optional | String | Team name |
@@ -538,6 +542,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | forecastitemcount | Required | Int32 | Number of items to forecast duration for |
@@ -549,6 +555,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | forecastweeks | Required | Int32 | Number of weeks into the future to forecast |
@@ -560,6 +568,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | id | Required | Int32 | Id of the work item to forecast |
 | teamname | Optional | String | Team name |
@@ -570,6 +580,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | teamname | Optional | String | Team name |
@@ -581,6 +593,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | numberofdays | Required | Int32 | Number of days of history to compute |
 | teamproject | Required | String | Team project name |
 | teamname | Optional | String | Team name |
@@ -702,6 +716,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the teams |
 # Test Data
 ## <a name="createfromexcel"></a> createfromexcel
@@ -880,6 +896,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the iterations |
 | verbose | Optional | Boolean | Verbose output |
 ## <a name="getfields"></a> getfields
@@ -899,6 +917,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the iterations |
 | verbose | Optional | Boolean | Verbose output |
 ## <a name="getworkitem"></a> getworkitem
@@ -916,6 +936,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the work item type |
 | workitemtypename | Required | String | Name of the work item type |
 ## <a name="getworkitemtypes"></a> getworkitemtypes
@@ -925,6 +947,8 @@ And a discovery tool so the assistant can fall back to the command line for anyt
 | --- | --- | --- | --- |
 | quiet | Optional | Boolean | Quiet mode |
 | config | Optional | String | Configuration name to use |
+| json | Optional | Boolean | Output results as JSON |
+| output | Optional | String | Path to write JSON output to (requires --json) |
 | teamproject | Required | String | Team project name that contains the work item types |
 | nameonly | Optional | Boolean | Only show the name of the work item types in the results. |
 ## <a name="listworkitemqueries"></a> listworkitemqueries

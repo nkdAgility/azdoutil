@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Web;
 
+using Benday.AzureDevOpsUtil.Api.FlowMetrics;
 using Benday.AzureDevOpsUtil.Api.Messages;
 using Benday.CommandsFramework;
 
@@ -22,6 +23,7 @@ public class GetAgingWorkItemsCommand : AzureDevOpsCommandBase
         var arguments = new ArgumentCollection();
 
         AddCommonArguments(arguments);
+        AddJsonOutputArguments(arguments);
 
         arguments.AddString(Constants.ArgumentNameTeamProjectName)
             .AsRequired()
@@ -37,6 +39,8 @@ public class GetAgingWorkItemsCommand : AzureDevOpsCommandBase
     protected override async Task OnExecute(CancellationToken cancellationToken)
     {
         _TeamProjectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         _HasTeamNameQuery = Arguments.HasValue(Constants.ArgumentNameTeamName);
 
@@ -49,7 +53,11 @@ public class GetAgingWorkItemsCommand : AzureDevOpsCommandBase
 
         await GetData();
 
-        if (IsQuietMode == false)
+        if (toJson)
+        {
+            WriteJsonOutput(ToAgingWorkResult());
+        }
+        else if (IsQuietMode == false)
         {
             if (Data == null || Data.Items == null)
             {
@@ -158,4 +166,34 @@ public class GetAgingWorkItemsCommand : AzureDevOpsCommandBase
     }
 
     public AgingWorkItemDataResponse? Data { get; private set; }
+
+    private AgingWorkResult ToAgingWorkResult()
+    {
+        var result = new AgingWorkResult
+        {
+            TeamProject = _TeamProjectName,
+            TeamName = _HasTeamNameQuery ? _TeamName : null
+        };
+
+        var items = Data?.Items ?? Array.Empty<AgingWorkItemData>();
+        result.InProgressItemCount = items.Length;
+
+        foreach (var item in items.OrderByDescending(x => x.AgeInDays))
+        {
+            result.Items.Add(new AgingWorkItem
+            {
+                WorkItemId = item.WorkItemId,
+                Title = item.Title ?? string.Empty,
+                WorkItemType = item.WorkItemType ?? string.Empty,
+                AgeInDays = item.AgeInDays,
+                IsBeyondTypicalDeliveryWindow = false
+            });
+        }
+
+        result.Summary = items.Length == 0
+            ? "No data or no work items in progress."
+            : $"Total in progress items: {items.Length}.";
+
+        return result;
+    }
 }

@@ -35,6 +35,71 @@ public abstract class AzureDevOpsCommandBase : Command
             .AsNotRequired().WithDescription("Configuration name to use");
     }
 
+    protected void AddJsonOutputArguments(ArgumentCollection arguments)
+    {
+        arguments.AddBoolean(Constants.CommandArgumentNameToJson)
+            .AsNotRequired()
+            .AllowEmptyValue()
+            .WithDescription("Output results as JSON");
+
+        arguments.AddString(Constants.ArgumentNameOutput)
+            .AsNotRequired()
+            .WithDescription("Path to write JSON output to (requires --json)");
+    }
+
+    protected bool IsJsonOutputRequested()
+    {
+        return Arguments.GetBooleanValue(Constants.CommandArgumentNameToJson);
+    }
+
+    protected string? GetJsonOutputPath()
+    {
+        if (Arguments.HasValue(Constants.ArgumentNameOutput) == false)
+        {
+            return null;
+        }
+
+        var outputPath = Arguments.GetStringValue(Constants.ArgumentNameOutput);
+
+        if (string.IsNullOrWhiteSpace(outputPath))
+        {
+            return null;
+        }
+
+        return outputPath;
+    }
+
+    protected void ValidateJsonOutputArguments()
+    {
+        var outputPath = GetJsonOutputPath();
+        var toJson = IsJsonOutputRequested();
+
+        if (string.IsNullOrWhiteSpace(outputPath) == false && toJson == false)
+        {
+            throw new KnownException(
+                $"--{Constants.ArgumentNameOutput} requires --{Constants.CommandArgumentNameToJson}.");
+        }
+    }
+
+    protected void WriteJsonOutput<T>(T value)
+    {
+        var json = JsonSerializer.Serialize(value, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        var outputPath = GetJsonOutputPath();
+
+        if (string.IsNullOrWhiteSpace(outputPath))
+        {
+            WriteLine(json);
+        }
+        else
+        {
+            File.WriteAllText(outputPath, json);
+        }
+    }
+
     protected AzureDevOpsConfiguration Configuration
     {
         get

@@ -20,6 +20,7 @@ public class GetWorkItemTypesCommand : AzureDevOpsCommandBase
 
 
         AddCommonArguments(args);
+        AddJsonOutputArguments(args);
         args.AddString(Constants.ArgumentNameTeamProjectName).AsRequired().
             WithDescription("Team project name that contains the work item types");
 
@@ -36,10 +37,18 @@ public class GetWorkItemTypesCommand : AzureDevOpsCommandBase
     {
         var projectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
         var nameOnly = Arguments.GetBooleanValue(Constants.ArgumentNameNameOnly);
+        var toJson = IsJsonOutputRequested();
+
+        ValidateJsonOutputArguments();
 
         await RunQuery(projectName);
 
-        if (IsQuietMode == false && AllWorkItemTypes != null)
+        if (toJson)
+        {
+            WriteJsonOutput(AllWorkItemTypes?.Types ?? Array.Empty<WorkItemTypeDefinitionResponse>());
+            return;
+        }
+        else if (IsQuietMode == false && AllWorkItemTypes != null)
         {
             foreach (var item in AllWorkItemTypes.Types)
             {
@@ -69,5 +78,3 @@ public class GetWorkItemTypesCommand : AzureDevOpsCommandBase
 
     public WorkItemTypeDefinitionListResponse? AllWorkItemTypes { get; private set; }
 }
-
-

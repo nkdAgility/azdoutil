@@ -25,6 +25,7 @@ public class ListTeamsForProjectCommand : AzureDevOpsCommandBase
         var args = new ArgumentCollection();
 
         AddCommonArguments(args);
+        AddJsonOutputArguments(args);
         args.AddString(Constants.ArgumentNameTeamProjectName).AsRequired().
             WithDescription("Team project name that contains the teams");      
 
@@ -34,6 +35,8 @@ public class ListTeamsForProjectCommand : AzureDevOpsCommandBase
     protected override async Task OnExecute(CancellationToken cancellationToken)
     {
         var projectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         var project = await GetTeamProject(projectName);
 
@@ -41,7 +44,12 @@ public class ListTeamsForProjectCommand : AzureDevOpsCommandBase
 
         LastResult = result;
 
-        if (IsQuietMode)
+        if (toJson)
+        {
+            WriteJsonOutput(result ?? Array.Empty<TeamInfo>());
+            return;
+        }
+        else if (IsQuietMode)
         {
             return;
         }

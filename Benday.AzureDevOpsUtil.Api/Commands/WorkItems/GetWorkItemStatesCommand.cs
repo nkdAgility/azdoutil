@@ -28,6 +28,7 @@ public class GetWorkItemStatesCommand : AzureDevOpsCommandBase
 
 
         AddCommonArguments(args);
+        AddJsonOutputArguments(args);
         args.AddString(Constants.ArgumentNameTeamProjectName).AsRequired().
             WithDescription("Team project name that contains the work item type");
         args.AddString(Constants.ArgumentNameWorkItemTypeName).AsRequired().
@@ -41,12 +42,19 @@ public class GetWorkItemStatesCommand : AzureDevOpsCommandBase
     {
         var projectName = Arguments.GetStringValue(Constants.ArgumentNameTeamProjectName);
         var workItemTypeName = Arguments.GetStringValue(Constants.ArgumentNameWorkItemTypeName);
+        var toJson = IsJsonOutputRequested();
+        ValidateJsonOutputArguments();
 
         var result = await GetWorkItemTypeStates(projectName, workItemTypeName);
 
         LastResult = result;
 
-        if (IsQuietMode == false)
+        if (toJson)
+        {
+            WriteJsonOutput(result?.States ?? Array.Empty<WorkItemTypeStateInfo>());
+            return;
+        }
+        else if (IsQuietMode == false)
         {
             if (result == null)
             {
@@ -107,5 +115,4 @@ public class GetWorkItemStatesCommand : AzureDevOpsCommandBase
         return returnValue!;
     }
 }
-
 
